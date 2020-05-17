@@ -1,0 +1,66 @@
+input AnswerSignallingInput {
+  roomId: ID!
+  sessionId: ID!
+  sdpAnswer: SdpString!
+  iceCandidates: [WebrtcIceCandidate!]!
+}
+
+type Mutation {
+  roomCreate(input: RoomCreateInput!): Room
+  roomJoin(input: RoomJoinInput!): RoomJoinPayload
+  answerSignalling(input: AnswerSignallingInput!): Boolean
+}
+
+type Query {
+  room(id: ID!): Room
+  session(id: ID!): Session
+}
+
+type Room {
+  id: ID!
+  title: String!
+  sessions: [Session!]
+}
+
+input RoomCreateInput {
+  title: String!
+}
+
+input RoomJoinInput {
+  roomId: ID!
+  sessionName: String!
+  sdpOffer: SdpString
+  iceCandidates: [WebrtcIceCandidate!]
+}
+
+type RoomJoinPayload {
+  session: Session
+  sdpOffer: SdpString
+  iceCandidates: [WebrtcIceCandidate!]
+}
+
+scalar SdpString
+
+type Session {
+  id: ID!
+  name: String!
+  type: SessionType!
+  room: Room
+}
+
+enum SessionType {
+  HOST
+  GUEST
+}
+
+type SignallingPayload {
+  sdpAnswer: SdpString!
+  iceCandidates: [WebrtcIceCandidate!]!
+}
+
+type Subscription {
+  signalling(roomId: ID!): SignallingPayload
+}
+
+scalar WebrtcIceCandidate
+

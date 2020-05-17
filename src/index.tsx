@@ -1,17 +1,38 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import 'webrtc-adapter'
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+import React from 'react'
+import ReactDOM from 'react-dom'
+import * as serviceWorker from 'serviceWorker'
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+import { RelayEnvironmentProvider } from 'react-relay/hooks'
+import environment from './providers/RelayProviders/environment'
+
+import { HashRouter as Router, Switch, Route } from 'react-router-dom'
+import routes from 'routes'
+
+import { ThemeProvider, CssBaseline } from '@material-ui/core'
+import theme from 'providers/Theme/theme'
+
+import { SnackbarProvider } from 'notistack'
+
+const root = document.getElementById('root') as HTMLElement
+ReactDOM
+  .unstable_createRoot(root)
+  .render(
+    <RelayEnvironmentProvider environment={environment}>
+      <CssBaseline />
+      <ThemeProvider theme={theme}>
+        <SnackbarProvider>
+          <Router>
+            <Switch>
+              <React.Suspense fallback='Loading...'>
+                {routes.map(route => <Route key={route.path} {...route} />)}
+              </React.Suspense>
+            </Switch>
+          </Router>
+        </SnackbarProvider>
+      </ThemeProvider>
+    </RelayEnvironmentProvider>
+  )
+
+serviceWorker.unregister()

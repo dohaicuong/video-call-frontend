@@ -1,26 +1,58 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
 
-function App() {
+import { graphql } from 'babel-plugin-relay/macro'
+import { useLazyLoadQuery, useFragment } from 'react-relay/hooks'
+
+import { AppQuery } from './__generated__/AppQuery.graphql'
+import { AppSessionFragment_session$key } from './__generated__/AppSessionFragment_session.graphql'
+
+const App = () => {
+  const data = useLazyLoadQuery<AppQuery>(
+    graphql`
+      query AppQuery($id: ID!) {
+        room(id: $id) {
+          id
+          title
+          sessions {
+            id
+            ...AppSessionFragment_session
+          }
+        }
+      }
+    `,
+    { id: 'cka4rlken0000ogxa6saod52t' }
+  )
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className='App'>
+      Room: {data.room?.title}
+      <ul>
+        {data.room?.sessions?.map(session => (
+          <li key={session.id}>
+            <Session session={session} />
+          </li>
+        ))}
+      </ul>
     </div>
-  );
+  )
 }
+export default App
 
-export default App;
+export type SessionProps = {
+  session: AppSessionFragment_session$key
+}
+const Session: React.FC<SessionProps> = (props) => {
+  const data = useFragment(
+    graphql`
+      fragment AppSessionFragment_session on Session {
+        id
+        name
+      }
+    `,
+    props.session
+  )
+
+  return (
+    <>Session: {data.name}</>
+  )
+}
